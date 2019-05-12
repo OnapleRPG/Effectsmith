@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 public class EffectFactory implements ItemNbtFactory {
 
     @Setting("effects")
-    private Map<PotionEffectType, Integer> effects;
+    private Map<String, Integer> effects;
 
 
     @Override
@@ -40,7 +40,7 @@ public class EffectFactory implements ItemNbtFactory {
         return effects.entrySet().stream().map(stringIntegerEntry -> Text.builder()
                 .append(
                         Text.builder(stringIntegerEntry.getKey()).color(TextColors.GRAY).build(),
-                        Text.builder(" >").color(TextColors.GRAY).build(),
+                        Text.builder(" -> ").color(TextColors.GRAY).build(),
                         Text.builder(stringIntegerEntry.getValue().toString()).color(TextColors.GOLD).build()
                 )
                 .build()

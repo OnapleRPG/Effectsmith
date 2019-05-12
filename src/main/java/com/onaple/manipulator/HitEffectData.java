@@ -1,6 +1,9 @@
 package com.onaple.manipulator;
 
+import com.onaple.Effectsmith;
 import com.onaple.HeKeys;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
 import org.spongepowered.api.data.DataView;
@@ -16,14 +19,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-public class HitEffectData extends AbstractMappedData<PotionEffectType,Integer,HitEffectData, HitEffectData.Immutable> {
+public class HitEffectData extends AbstractMappedData<String, Integer, HitEffectData, HitEffectData.Immutable> {
 
-    public HitEffectData(){
+    public HitEffectData() {
         this(new HashMap<>());
     }
 
-    public HitEffectData(Map<PotionEffectType,Integer> value) {
+    public HitEffectData(Map<String, Integer> value) {
         super(value, HeKeys.HIT_EFFECT);
     }
 
@@ -34,8 +38,11 @@ public class HitEffectData extends AbstractMappedData<PotionEffectType,Integer,H
             HitEffectData otherData = otherData_.get();
             HitEffectData finalData = overlap.merge(this, otherData);
             finalData.setValue(otherData.getValue());
+            return Optional.of(this);
+        } else {
+            return Optional.empty();
         }
-        return Optional.of(this);
+
     }
 
     @Override
@@ -43,13 +50,16 @@ public class HitEffectData extends AbstractMappedData<PotionEffectType,Integer,H
         return from((DataView) container);
     }
 
-    Optional<HitEffectData> from(DataView container){
-        if (container.contains(HeKeys.HIT_EFFECT)) {
-            Map<PotionEffectType,Integer> effects = new HashMap<>();
-            container.getList(HeKeys.HIT_EFFECT.getQuery()).ifPresent(objects -> effects.putAll( (Map<PotionEffectType,Integer>) objects));
+    Optional<HitEffectData> from(DataView container) {
+        if (container.contains(HeKeys.HIT_EFFECT.getQuery())) {
+            Map<String, Integer> effects = (Map<String, Integer>) container.getMap(HeKeys.HIT_EFFECT.getQuery()).get();
+            System.out.println(effects.keySet().stream().collect(Collectors.joining()));
             this.setValue(effects);
+            return Optional.of(this);
+        } else {
+            return Optional.empty();
         }
-        return Optional.of(this);
+
     }
 
     @Override
@@ -64,54 +74,55 @@ public class HitEffectData extends AbstractMappedData<PotionEffectType,Integer,H
 
     @Override
     public int getContentVersion() {
-        return 0;
+        return Builder.CONTENT_VERSION;
     }
 
     @Override
     public DataContainer toContainer() {
-        return super.toContainer().set(HeKeys.HIT_EFFECT,getValue());
+        return super.toContainer().set(HeKeys.HIT_EFFECT.getQuery(), getValue());
     }
 
     @Override
-    public Optional<Integer> get(PotionEffectType key) {
-         Integer value =getValue().get(key);
-         if (value != null){
-             return Optional.of(value);
-         }
+    public Optional<Integer> get(String key) {
+        Integer value = getValue().get(key);
+        if (value != null) {
+            return Optional.of(value);
+        }
         return Optional.empty();
     }
 
     @Override
-    public Set<PotionEffectType> getMapKeys() {
+    public Set<String> getMapKeys() {
         return getValue().keySet();
     }
 
     @Override
-    public HitEffectData put(PotionEffectType key, Integer value) {
-        getValue().put(key,value);
+    public HitEffectData put(String key, Integer value) {
+        getValue().put(key, value);
         return this;
     }
 
     @Override
-    public HitEffectData putAll(Map<? extends PotionEffectType, ? extends Integer> map) {
+    public HitEffectData putAll(Map<? extends String, ? extends Integer> map) {
         getValue().putAll(map);
         return this;
     }
 
 
     @Override
-    public HitEffectData remove(PotionEffectType key) {
+    public HitEffectData remove(String key) {
         getValue().remove(key);
         return this;
     }
 
-    public class Immutable extends AbstractImmutableMappedData<PotionEffectType,Integer, Immutable, HitEffectData> {
+
+    public static class Immutable extends AbstractImmutableMappedData<String, Integer, Immutable, HitEffectData> {
 
         public Immutable() {
-            this(new HashMap<PotionEffectType, Integer>());
+            this(new HashMap<String, Integer>());
         }
 
-        public Immutable(Map<PotionEffectType,Integer> value) {
+        public Immutable(Map<String, Integer> value) {
             super(value, HeKeys.HIT_EFFECT);
         }
 
@@ -122,17 +133,25 @@ public class HitEffectData extends AbstractMappedData<PotionEffectType,Integer,H
 
         @Override
         public int getContentVersion() {
-            return 0;
+            return Builder.CONTENT_VERSION;
         }
+
+        @Override
+        @NonNull
+        public DataContainer toContainer() {
+            return super.toContainer().set(HeKeys.HIT_EFFECT.getQuery(), getValue());
+        }
+
     }
 
     public static class Builder extends AbstractDataBuilder<HitEffectData>
             implements DataManipulatorBuilder<HitEffectData, Immutable> {
 
-        protected int CONTENT_VERSION = 1;
+
+        public static final int CONTENT_VERSION = 1;
 
         public Builder() {
-            super(HitEffectData.class, 1);
+            super(HitEffectData.class, CONTENT_VERSION);
         }
 
         @Override
@@ -149,5 +168,6 @@ public class HitEffectData extends AbstractMappedData<PotionEffectType,Integer,H
         protected Optional<HitEffectData> buildContent(DataView container) throws InvalidDataException {
             return create().from(container);
         }
+
     }
 }

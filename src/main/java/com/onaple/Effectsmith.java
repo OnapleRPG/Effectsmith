@@ -15,7 +15,9 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.entity.DamageEntityEvent;
 import org.spongepowered.api.event.filter.cause.First;
+import org.spongepowered.api.event.game.state.GameConstructionEvent;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
+import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.event.item.inventory.UseItemStackEvent;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.Carrier;
@@ -50,7 +52,7 @@ public class Effectsmith {
     private PluginContainer container;
 
     @Listener
-    public void onServerStart(GameInitializationEvent event) {
+    public void onServerStart(GameConstructionEvent event) {
         new HeKeys();
         DataRegistration.builder()
                 .dataClass(HitEffectData.class)
@@ -68,15 +70,18 @@ public class Effectsmith {
        Optional<ItemStack> itemOpt = player.getItemInHand(HandTypes.MAIN_HAND);
        if (itemOpt.isPresent()) {
            ItemStack item = itemOpt.get();
-           Optional<Map<PotionEffectType,Integer>>  dataOpt = item.get(HeKeys.HIT_EFFECT);
+           Optional<Map<String,Integer>>  dataOpt = item.get(HeKeys.HIT_EFFECT);
            if(dataOpt.isPresent()) {
                List<PotionEffect> potionEffects = new ArrayList<>();
-               for (Map.Entry<PotionEffectType,Integer> effect : dataOpt.get().entrySet()) {
-                   PotionEffect potionEffect = PotionEffect.builder().potionType(effect.getKey())
-                           .amplifier(effect.getValue())
-                           .duration(10)
-                           .particles(true).build();
-                   potionEffects.add(potionEffect);
+               logger.info("item effect data [{}]", dataOpt.get());
+               for (Map.Entry<String,Integer> effect : dataOpt.get().entrySet()) {
+                    Sponge.getRegistry().getType(PotionEffectType.class, effect.getKey()).ifPresent(potionEffectType -> {
+                        PotionEffect potionEffect = PotionEffect.builder().potionType(potionEffectType)
+                                .amplifier(effect.getValue())
+                                .duration(1000)
+                                .particles(true).build();
+                        potionEffects.add(potionEffect);
+                    });
                }
                event.getTargetEntity().offer(Keys.POTION_EFFECTS, potionEffects);
                player.sendMessage(Text.of(event.getTargetEntity().get(Keys.POTION_EFFECTS)));
