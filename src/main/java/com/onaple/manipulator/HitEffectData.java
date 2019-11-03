@@ -1,9 +1,7 @@
 package com.onaple.manipulator;
 
-import com.onaple.Effectsmith;
 import com.onaple.HeKeys;
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
 import org.spongepowered.api.data.DataView;
@@ -13,7 +11,6 @@ import org.spongepowered.api.data.manipulator.mutable.common.AbstractMappedData;
 import org.spongepowered.api.data.merge.MergeFunction;
 import org.spongepowered.api.data.persistence.AbstractDataBuilder;
 import org.spongepowered.api.data.persistence.InvalidDataException;
-import org.spongepowered.api.effect.potion.PotionEffectType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,7 +25,7 @@ public class HitEffectData extends AbstractMappedData<String, Integer, HitEffect
     }
 
     public HitEffectData(Map<String, Integer> value) {
-        super(value, HeKeys.HIT_EFFECT);
+        super(HeKeys.HIT_EFFECT,value);
     }
 
     @Override
