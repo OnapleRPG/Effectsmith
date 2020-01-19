@@ -17,8 +17,7 @@ import java.util.stream.Collectors;
 public class EffectFactory implements ItemNbtFactory {
 
     @Setting("effects")
-    private Map<String, Integer> effects;
-
+    private List<SingleHitEffect> effects;
 
     @Override
     public Key getKey() {
@@ -37,11 +36,11 @@ public class EffectFactory implements ItemNbtFactory {
 
     public List<Text> getLore(){
 
-        return effects.entrySet().stream().map(stringIntegerEntry -> Text.builder()
+        return effects.stream().map(stringIntegerEntry -> Text.builder()
                 .append(
-                        Text.builder(stringIntegerEntry.getKey()).color(TextColors.GRAY).build(),
+                        Text.builder(stringIntegerEntry.getPotionEffectType()).color(TextColors.GRAY).build(),
                         Text.builder(" -> ").color(TextColors.GRAY).build(),
-                        Text.builder(stringIntegerEntry.getValue().toString()).color(TextColors.GOLD).build()
+                        Text.builder(String.valueOf(stringIntegerEntry.getAmplification())).color(TextColors.GOLD).build()
                 )
                 .build()
         ).collect(Collectors.toList());

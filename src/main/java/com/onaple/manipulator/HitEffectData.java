@@ -1,36 +1,37 @@
 package com.onaple.manipulator;
 
+import com.onaple.EffectSmith;
 import com.onaple.HeKeys;
+import com.onaple.SingleHitEffect;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
 import org.spongepowered.api.data.DataView;
 import org.spongepowered.api.data.manipulator.DataManipulatorBuilder;
-import org.spongepowered.api.data.manipulator.immutable.common.AbstractImmutableMappedData;
-import org.spongepowered.api.data.manipulator.mutable.common.AbstractMappedData;
+import org.spongepowered.api.data.manipulator.immutable.common.AbstractImmutableListData;
+import org.spongepowered.api.data.manipulator.mutable.common.AbstractListData;
 import org.spongepowered.api.data.merge.MergeFunction;
 import org.spongepowered.api.data.persistence.AbstractDataBuilder;
 import org.spongepowered.api.data.persistence.InvalidDataException;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
-public class HitEffectData extends AbstractMappedData<String, Integer, HitEffectData, HitEffectData.Immutable> {
+public class HitEffectData extends AbstractListData<SingleHitEffect, HitEffectData, HitEffectData.Immutable> {
 
     public HitEffectData() {
-        this(new HashMap<>());
+        this(new ArrayList<>());
     }
 
-    public HitEffectData(Map<String, Integer> value) {
-        super(HeKeys.HIT_EFFECT,value);
+    public HitEffectData(List<SingleHitEffect> value) {
+        super(value,HeKeys.HIT_EFFECT);
     }
 
     @Override
     public Optional<HitEffectData> fill(DataHolder dataHolder, MergeFunction overlap) {
         Optional<HitEffectData> otherData_ = dataHolder.get(HitEffectData.class);
+        EffectSmith.getLogger().info("fill with data {}",dataHolder);
         if (otherData_.isPresent()) {
             HitEffectData otherData = otherData_.get();
             HitEffectData finalData = overlap.merge(this, otherData);
@@ -49,14 +50,13 @@ public class HitEffectData extends AbstractMappedData<String, Integer, HitEffect
 
     Optional<HitEffectData> from(DataView container) {
         if (container.contains(HeKeys.HIT_EFFECT.getQuery())) {
-            Map<String, Integer> effects = (Map<String, Integer>) container.getMap(HeKeys.HIT_EFFECT.getQuery()).get();
-            System.out.println(effects.keySet().stream().collect(Collectors.joining()));
+            EffectSmith.getLogger().info("from effect data {}",container);
+            List<SingleHitEffect> effects = (List<SingleHitEffect>) container.getList(HeKeys.HIT_EFFECT.getQuery()).get();
             this.setValue(effects);
             return Optional.of(this);
         } else {
             return Optional.empty();
         }
-
     }
 
     @Override
@@ -79,48 +79,16 @@ public class HitEffectData extends AbstractMappedData<String, Integer, HitEffect
         return super.toContainer().set(HeKeys.HIT_EFFECT.getQuery(), getValue());
     }
 
-    @Override
-    public Optional<Integer> get(String key) {
-        Integer value = getValue().get(key);
-        if (value != null) {
-            return Optional.of(value);
-        }
-        return Optional.empty();
-    }
-
-    @Override
-    public Set<String> getMapKeys() {
-        return getValue().keySet();
-    }
-
-    @Override
-    public HitEffectData put(String key, Integer value) {
-        getValue().put(key, value);
-        return this;
-    }
-
-    @Override
-    public HitEffectData putAll(Map<? extends String, ? extends Integer> map) {
-        getValue().putAll(map);
-        return this;
-    }
 
 
-    @Override
-    public HitEffectData remove(String key) {
-        getValue().remove(key);
-        return this;
-    }
-
-
-    public static class Immutable extends AbstractImmutableMappedData<String, Integer, Immutable, HitEffectData> {
+    public static class Immutable extends AbstractImmutableListData<SingleHitEffect, Immutable, HitEffectData> {
 
         public Immutable() {
-            this(new HashMap<String, Integer>());
+            this(new ArrayList<>());
         }
 
-        public Immutable(Map<String, Integer> value) {
-            super(value, HeKeys.HIT_EFFECT);
+        public Immutable(List<SingleHitEffect> value) {
+            super(value,HeKeys.HIT_EFFECT);
         }
 
         @Override
